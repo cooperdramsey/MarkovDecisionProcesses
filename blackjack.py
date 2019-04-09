@@ -71,6 +71,7 @@ class BlackjackEnv(gym.Env):
             spaces.Discrete(11),
             spaces.Discrete(2)))
         self.seed()
+        self.n_states = self.observation_space[0].n * self.observation_space[1].n * self.observation_space[2].n
 
         # Flag to payout 1.5 on a "natural" blackjack win, like casino rules
         # Ref: http://www.bicyclecards.com/how-to-play/blackjack/
