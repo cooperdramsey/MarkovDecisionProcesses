@@ -210,5 +210,16 @@ def Q_learning_train(env, alpha, gamma, epsilon, episodes):
         best_act = np.argmax(q_table[state])  # find best action
         policy[state] = np.eye(env.env.nA)[best_act]  # update
 
-    print("Training finished.\n")
+    # print("Training finished.\n")
     return policy, q_table
+
+
+def count(policy, env):
+    curr_state = env.reset()
+    counter = 0
+    reward = None
+    while reward != 20:
+        state, reward, done, info = env.step(np.argmax(policy[curr_state]))
+        curr_state = state
+        counter += 1
+    return counter
