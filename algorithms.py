@@ -214,12 +214,16 @@ def Q_learning_train(env, alpha, gamma, epsilon, episodes):
     return policy, q_table
 
 
-def count(policy, env, goal=20):
+def count(policy, env, goal):
     curr_state = env.reset()
     counter = 0
     reward = None
+    done = False
     while reward != goal:
         state, reward, done, info = env.step(np.argmax(policy[curr_state]))
         curr_state = state
         counter += 1
+        if done and reward != goal:
+            counter = -1
+            break
     return counter

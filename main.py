@@ -27,7 +27,7 @@ def process_Q_lake(lake):
     # Q-Learning
     alpha = 0.2
     gamma = 0.95
-    epsilon = 0.1
+    epsilon = 0.9
     episodes = 100000
     start = timer()
     policy_lake_q = algorithms.Q_learning_train(lake, alpha=alpha, gamma=gamma, epsilon=epsilon, episodes=episodes)
@@ -40,7 +40,7 @@ def process_Q_taxi(taxi):
     # Q-Learning
     alpha = 0.2
     gamma = 0.95
-    epsilon = 0.1
+    epsilon = 0.9
     episodes = 100000
     start = timer()
     policy_taxi_q = algorithms.Q_learning_train(taxi, alpha=alpha, gamma=gamma, epsilon=epsilon, episodes=episodes)
@@ -51,16 +51,16 @@ def process_Q_taxi(taxi):
 
 def test_lake(policy, title, is_q=False):
     env = envs.make('FrozenLake-v0')
-    goal = 1
+    goal = 1.0
     if is_q:
-        pol_counts = [algorithms.count(policy[0], env, goal) for i in range(100)]
+        pol_counts = [algorithms.count(policy[0], env, goal) for i in range(1000)]
     else:
-        pol_counts = [algorithms.count(policy, env, goal) for i in range(100)]
-    print("An agent using a policy which has been improved using policy-iterated takes about an average of " + str(
+        pol_counts = [algorithms.count(policy, env, goal) for i in range(1000) ]
+    print("An agent using" + title + "takes about an average of " + str(
         int(np.mean(pol_counts)))
           + " steps to successfully complete its mission.")
-    sns.distplot(pol_counts).set_title(title)
-    plt.show()
+    #sns.distplot(pol_counts).set_title(title)
+    #plt.show()
 
 
 def test_taxi(policy, title, is_q=False):
@@ -70,11 +70,12 @@ def test_taxi(policy, title, is_q=False):
         pol_counts = [algorithms.count(policy[0], env, goal) for i in range(1000)]
     else:
         pol_counts = [algorithms.count(policy, env, goal) for i in range(1000)]
-    print("An agent using a policy which has been improved using policy-iterated takes about an average of " + str(
+    pol_counts = [x for x in pol_counts if x > -1]
+    print("An agent using" + title + "takes about an average of " + str(
         int(np.mean(pol_counts)))
           + " steps to successfully complete its mission.")
-    sns.distplot(pol_counts).set_title(title)
-    plt.show()
+    #sns.distplot(pol_counts).set_title(title)
+    #plt.show()
 
 
 if __name__ == '__main__':
@@ -142,26 +143,16 @@ if __name__ == '__main__':
 
     # Test policies created by value iteration, policy iteration and Q-learning here
     # Create Graphs of tested policies
-    # p1 = mp.Process(target=test_lake, args=(policy_lake_v, 'Value Iteration (Lake)',))
-    # p2 = mp.Process(target=test_lake, args=(policy_lake_p, 'Policy Iteration (Lake)',))
-    # p3 = mp.Process(target=test_lake, args=(policy_lake_q, 'Q Learning (Lake)', True))
+    p1 = mp.Process(target=test_lake, args=(policy_lake_v, 'Value Iteration (Lake)',))
+    p2 = mp.Process(target=test_lake, args=(policy_lake_p, 'Policy Iteration (Lake)',))
+    p3 = mp.Process(target=test_lake, args=(policy_lake_q, 'Q Learning (Lake)', True))
     p4 = mp.Process(target=test_taxi, args=(policy_taxi_v, 'Value Iteration (Taxi)',))
     p5 = mp.Process(target=test_taxi, args=(policy_taxi_p, 'Policy Iteration (Taxi)',))
     p6 = mp.Process(target=test_taxi, args=(policy_taxi_q, 'Q Learning (Taxi)', True))
 
-    # p1.start()
-    # p2.start()
-    # p3.start()
+    p1.start()
+    p2.start()
+    p3.start()
     p4.start()
     p5.start()
     p6.start()
-
-    # # Lake
-    # test_policy(policy_lake_v, lake, True)
-    # test_policy(policy_lake_p, lake, True)
-    # test_policy(policy_lake_q, lake, True, True)
-    #
-    # # # Taxi
-    # test_policy(policy_taxi_v, taxi)
-    # test_policy(policy_taxi_p, taxi)
-    # test_policy(policy_taxi_q, taxi, False, True)
