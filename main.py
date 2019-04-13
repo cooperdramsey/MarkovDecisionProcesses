@@ -6,36 +6,57 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import multiprocessing as mp
 
+# Copyright 2019 Ang Peng Seng
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
-alpha = 0.2
-gamma = 0.95
-epsilon = 0.1
+
+# alpha = 0.8
+# gamma = 0.95
+# epsilon = 0.1
 
 
-def plot_epsilon_changes(lake, taxi, title):
+def plot_epsilon_changes(lake, taxi, title, gamma, alpha):
     plt.figure()
     plt.title(title)
     plt.xlabel('Epsilon Value')
-    plt.ylabel('Train Time')
+    plt.ylabel('Avg Moves To Goal')
     plt.grid()
     epsilon_scores = list(np.arange(0.1, 1, 0.1))
     # Do Q learning
-    train_times_1 = []
-    train_times_2 = []
+    # train_times_1 = []
+    # train_times_2 = []
+    moves_1 = []
+    moves_2 = []
     for e in epsilon_scores:
-        lake.reset()
-        taxi.reset()
-        _, time_1 = process_Q_taxi(taxi, alpha, gamma, e)
-        _, time_2 = process_Q_lake(lake, alpha, gamma, e)
-        train_times_1.append(time_1)
-        train_times_2.append(time_2)
-    plt.plot(epsilon_scores, train_times_1, color="r", label='Taxi')
-    plt.plot(epsilon_scores, train_times_2, color="g", label='Lake')
+        # lake.reset()
+        # taxi.reset()
+        # _, time_1 = process_Q_taxi(taxi, alpha, gamma, e)
+        # _, time_2 = process_Q_lake(lake, alpha, gamma, e)
+        # train_times_1.append(time_1)
+        # train_times_2.append(time_2)
+        policy_taxi, _ = process_Q_taxi(taxi, alpha, gamma, e)
+        policy_lake, _ = process_Q_lake(lake, alpha, gamma, e)
+        moves_1.append(test_taxi(policy_taxi, is_q=True))
+        moves_2.append(test_lake(policy_lake, is_q=True))
+
+    plt.plot(epsilon_scores, moves_1, color="r", label='Taxi')
+    plt.plot(epsilon_scores, moves_2, color="g", label='Lake')
     plt.legend()
     plt.show()
 
 
-def plot_gamma_changes(lake, taxi, title):
+def plot_gamma_changes(lake, taxi, title, alpha, epsilon):
     plt.figure()
     plt.title(title)
     plt.xlabel('Gamma Value')
@@ -57,7 +78,7 @@ def plot_gamma_changes(lake, taxi, title):
     plt.show()
 
 
-def plot_alpha_changes(lake, taxi, title):
+def plot_alpha_changes(lake, taxi, title, gamma, epsilon):
     plt.figure()
     plt.title(title)
     plt.xlabel('Alpha Value')
@@ -140,9 +161,9 @@ def test_taxi(policy, title='', is_q=False):
     env = envs.make('Taxi-v2')
     goal = 20
     if is_q:
-        pol_counts = [algorithms.count(policy[0], env, goal) for i in range(1000)]
+        pol_counts = [algorithms.count(policy[0], env, goal) for i in range(10000)]
     else:
-        pol_counts = [algorithms.count(policy, env, goal) for i in range(1000)]
+        pol_counts = [algorithms.count(policy, env, goal) for i in range(10000)]
     pol_counts = [x for x in pol_counts if x > -1]
     # print("An agent using" + title + "takes about an average of " + str(
     #     int(np.mean(pol_counts)))
@@ -220,12 +241,18 @@ if __name__ == '__main__':
     # plot_gamma_changes(lake, taxi, 'Avg Moves To Goal at Different Gamma')
     # plot_alpha_changes(lake, taxi, 'Avg Moves To Goal at Different Alpha')
 
-    p1 = mp.Process(target=plot_epsilon_changes, args=(lake, taxi, 'Train Times at Different Epsilon',))
-    p2 = mp.Process(target=plot_gamma_changes, args=(lake, taxi, 'Avg Moves To Goal at Different Gamma',))
-    p3 = mp.Process(target=plot_alpha_changes, args=(lake, taxi, 'Avg Moves To Goal at Different Alpha',))
+    p1 = mp.Process(target=plot_epsilon_changes, args=(lake, taxi, 'Train Times at Different Epsilon (a)', 0.3, 0.2,))
+    p2 = mp.Process(target=plot_epsilon_changes, args=(lake, taxi, 'Train Times at Different Epsilon (b)', 0.3, 0.2,))
+    p3 = mp.Process(target=plot_gamma_changes, args=(lake, taxi, 'Avg Moves To Goal at Different Gamma (a)', 0.8, 0.1,))
+    p4 = mp.Process(target=plot_gamma_changes, args=(lake, taxi, 'Avg Moves To Goal at Different Gamma (b)', 0.8, 0.9,))
+    p5 = mp.Process(target=plot_alpha_changes, args=(lake, taxi, 'Avg Moves To Goal at Different Alpha (a)', 0.95, 0.1,))
+    p6 = mp.Process(target=plot_alpha_changes, args=(lake, taxi, 'Avg Moves To Goal at Different Alpha (b)', 0.95, 0.9,))
     p1.start()
     p2.start()
     p3.start()
+    p4.start()
+    p5.start()
+    p6.start()
 
     # policy_lake_q = process_Q_lake(lake, alpha, gamma, epsilon)
     # policy_taxi_q = process_Q_taxi(taxi, alpha, gamma, epsilon)
