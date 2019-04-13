@@ -8,8 +8,8 @@ import multiprocessing as mp
 
 
 alpha = 0.2
-gamma = 0.3
-epsilon = 0.9
+gamma = 0.95
+epsilon = 0.1
 
 
 def plot_epsilon_changes(lake, taxi, title):

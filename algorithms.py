@@ -3,6 +3,8 @@ import random
 from IPython.display import clear_output
 
 
+# CODE IN THIS FILE ADAPTED FROM: https://www.kaggle.com/angps95/intro-to-reinforcement-learning-with-openai-gym
+
 def policy_eval(policy, env, discount_factor=1.0, theta=0.00001):
     """
     Evaluate a policy given an environment and a full description of the environment's dynamics.
