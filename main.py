@@ -21,11 +21,6 @@ import multiprocessing as mp
 # limitations under the License.
 
 
-# alpha = 0.8
-# gamma = 0.95
-# epsilon = 0.1
-
-
 def plot_epsilon_changes(lake, taxi, title, gamma, alpha):
     plt.figure()
     plt.title(title)
@@ -209,12 +204,12 @@ if __name__ == '__main__':
     #
     # # Random policy
     # start = timer()
-    # policy_lake_p, _, iters = algorithms.policy_iteration(lake, algorithms.policy_eval, discount_factor=0.99)
+    # policy_lake_p, lake_R_val, iters = algorithms.policy_iteration(lake, algorithms.policy_eval, discount_factor=0.99)
     # end = timer()
     # print("Policy Iteration Lake: {}s in {} iters".format(end - start, iters))
     #
     # start = timer()
-    # policy_taxi_p, _, iters = algorithms.policy_iteration(taxi, algorithms.policy_eval, discount_factor=0.99)
+    # policy_taxi_p, taxi_R_val, iters = algorithms.policy_iteration(taxi, algorithms.policy_eval, discount_factor=0.99)
     # end = timer()
     # print("Policy Iteration Taxi: {}s in {} iters".format(end - start, iters))
     #
@@ -241,18 +236,23 @@ if __name__ == '__main__':
     # plot_gamma_changes(lake, taxi, 'Avg Moves To Goal at Different Gamma')
     # plot_alpha_changes(lake, taxi, 'Avg Moves To Goal at Different Alpha')
 
-    p1 = mp.Process(target=plot_epsilon_changes, args=(lake, taxi, 'Train Times at Different Epsilon (a)', 0.3, 0.2,))
-    p2 = mp.Process(target=plot_epsilon_changes, args=(lake, taxi, 'Train Times at Different Epsilon (b)', 0.3, 0.2,))
-    p3 = mp.Process(target=plot_gamma_changes, args=(lake, taxi, 'Avg Moves To Goal at Different Gamma (a)', 0.8, 0.1,))
+    p1 = mp.Process(target=plot_epsilon_changes, args=(lake, taxi, 'Avg Moves To Goal at Different Epsilon (a)', 0.3, 0.2,))
+    p2 = mp.Process(target=plot_epsilon_changes, args=(lake, taxi, 'Avg Moves To Goal at Different Epsilon (b)', 0.95, 0.2,))
+    p7 = mp.Process(target=plot_epsilon_changes, args=(lake, taxi, 'Avg Moves To Goal at Different Epsilon (a)', 0.3, 0.8,))
+    p8 = mp.Process(target=plot_epsilon_changes, args=(lake, taxi, 'Avg Moves To Goal at Different Epsilon (b)', 0.95, 0.8,))
+
+    # p3 = mp.Process(target=plot_gamma_changes, args=(lake, taxi, 'Avg Moves To Goal at Different Gamma (a)', 0.8, 0.1,))
     p4 = mp.Process(target=plot_gamma_changes, args=(lake, taxi, 'Avg Moves To Goal at Different Gamma (b)', 0.8, 0.9,))
-    p5 = mp.Process(target=plot_alpha_changes, args=(lake, taxi, 'Avg Moves To Goal at Different Alpha (a)', 0.95, 0.1,))
+    # p5 = mp.Process(target=plot_alpha_changes, args=(lake, taxi, 'Avg Moves To Goal at Different Alpha (a)', 0.95, 0.1,))
     p6 = mp.Process(target=plot_alpha_changes, args=(lake, taxi, 'Avg Moves To Goal at Different Alpha (b)', 0.95, 0.9,))
     p1.start()
     p2.start()
-    p3.start()
+    # p3.start()
     p4.start()
-    p5.start()
+    # p5.start()
     p6.start()
+    p7.start()
+    p8.start()
 
     # policy_lake_q = process_Q_lake(lake, alpha, gamma, epsilon)
     # policy_taxi_q = process_Q_taxi(taxi, alpha, gamma, epsilon)
@@ -272,3 +272,30 @@ if __name__ == '__main__':
     # p4.start()
     # p5.start()
     # p6.start()
+
+    # Figure out average reward per move using the output Reward tables for value iteration, policy iteration and Q learning.
+    _, taxi_R_val, _ = algorithms.policy_iteration(taxi, algorithms.policy_eval, discount_factor=0.99)
+    _, lake_R_val, _ = algorithms.policy_iteration(lake, algorithms.policy_eval, discount_factor=0.99)
+    # Q-Learning LAKE
+    alpha = 0.2
+    gamma = 0.95
+    epsilon = 0.1
+    episodes = 100000
+    _, lake_Q_R = algorithms.Q_learning_train(lake, alpha=alpha, gamma=gamma, epsilon=epsilon, episodes=episodes)
+
+    # Q-Learning TAXI
+    alpha = 0.2
+    gamma = 0.95
+    epsilon = 0.1
+    episodes = 100000
+    _, taxi_Q_R = algorithms.Q_learning_train(taxi, alpha=alpha, gamma=gamma, epsilon=epsilon, episodes=episodes)
+
+    # Compute averages
+    v_lake = np.mean(lake_R_val)
+    v_taxi = np.mean(taxi_R_val)
+    q_lake = np.mean(lake_Q_R)
+    q_taxi = np.mean(taxi_Q_R)
+    print("Value Iteration Lake: {}".format(v_lake))
+    print("Value Iteration Taxi: {}".format(v_taxi))
+    print("Q Learning Lake: {}".format(q_lake))
+    print("Q Learning Taxi: {}".format(q_taxi))
