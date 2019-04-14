@@ -1,6 +1,5 @@
 import numpy as np
 import random
-from IPython.display import clear_output
 
 
 # CODE IN THIS FILE ADAPTED FROM: https://www.kaggle.com/angps95/intro-to-reinforcement-learning-with-openai-gym
